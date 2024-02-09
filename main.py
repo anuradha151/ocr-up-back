@@ -16,7 +16,7 @@ app.add_middleware(
 def read_root():    
     return {"Hellow": "World"}
 
-@app.post("/uploadfile/")
+@app.post("/uploadfile")
 async def create_upload_file(file: UploadFile=File(...)):
     reponse = detect(file.file)    
     return {
