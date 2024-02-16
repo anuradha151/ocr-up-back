@@ -1,23 +1,30 @@
-# from fastapi import APIRouter
-# from config.db import conn
-# from models import users
+from fastapi import APIRouter, Depends
+from models.User import UserBase
+import schemas
+from sqlalchemy.orm import Session
+from config.db import SessionLocal
 
-# user =  APIRouter()
+user =  APIRouter()
 
-# @user.get("/")
-# async def read_data():
-#     return conn.execute(users.select()).fetchall()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-# @user.get("/{id}")
-# async def read_data(id: int):
-#     return conn.execute(users.select().where(users.c.id == id)).fetchall()
+db_dependency = Depends(get_db)
 
-# @user.post("/") 
-# async def create_user(user: User):
-#     conn.execute(users.insert().values(
-#         first_name=user.first_name,
-#         last_name=user.last_name,
-#         email=user.email,
-#         password=user.password
-#     ))
-#     return {"message": "User has been created successfully."}
+@user.post("/") 
+async def create_user(user: UserBase, db: Session = db_dependency):
+    db_user = schemas.User(**user.model_dump())
+    db.add(db_user)
+    db.commit()
+
+@user.get("/")
+async def read_data(db: Session = db_dependency):
+    return db.query(schemas.User).all()
+
+@user.get("/{id}")
+async def read_data(id: int, db: Session = db_dependency):
+    return db.query(schemas.User).filter(schemas.User.id == id).first() 
