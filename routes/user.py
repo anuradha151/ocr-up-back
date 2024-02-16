@@ -20,6 +20,7 @@ async def create_user(user: UserBase, db: Session = db_dependency):
     db_user = schemas.User(**user.model_dump())
     db.add(db_user)
     db.commit()
+    return {"message": "User has been created successfully"}
 
 @user.get("/")
 async def read_data(db: Session = db_dependency):

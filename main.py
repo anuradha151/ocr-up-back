@@ -6,7 +6,7 @@ import schemas
 from config.db import engine
 
 app = FastAPI()
-app.include_router(user) 
+app.include_router(user , prefix="/user", tags=["user"]) 
 schemas.Base.metadata.create_all(bind=engine)
 
 app.add_middleware(
